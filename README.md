@@ -1,237 +1,262 @@
-# oh-my-context -> Context Sync System
+# Context Sync System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub](https://img.shields.io/badge/storage-GitHub-black.svg)](https://github.com)
 [![Memory OS v2](https://img.shields.io/badge/Memory%20OS-v2.0-green.svg)](./MEMORY_OS_DESIGN.md)
 
-自动上传你的context到github私有仓库，方便跨设备、模型、agent调用
+**English** | [简体中文](./README.zh-CN.md)
 
-> **一个关于"自我编译"的实验**
-> 
-> *"我是谁"可以不只是一个生物学问题，而可以是 `git clone`、`diff`、`merge` 的工程问题。*
+> **An Experiment in "Self-Compilation"**
 >
-> 这个项目的终极目标是：**把自己逐步编译成一个可加载的 context**。当有一天我下线了，希望还能：
+> *"Who am I" should not just be a biological question, but an engineering problem that can be `git clone`d, `diff`ed, and `merge`d.*
+>
+> The ultimate goal of this project is: **to gradually compile myself into a loadable context**. When I go offline one day, I hope to still:
 > ```bash
 > context pull me
-> # 系统继续正常运行
-> # 也许，还能提个 PR
+> # The system continues to function normally
+> # Maybe, even submit a PR
 > ```
-> 
+>
+> This is not a backup, this is **version-controlled existence**.
 
 ---
 
-## 🆕 Memory OS v2.0
+## Table of Contents
 
-系统已升级为 **有纪律的 Memory OS**，核心变化：
+- [Memory OS v2.0](#-memory-os-v20)
+- [Core Features](#-core-features)
+- [Requirements](#-requirements)
+- [Quick Start](#-quick-start)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Usage Examples](#-usage-examples)
+- [Context Format](#-context-format)
+- [Integration Guide](#-integration-guide)
+- [Project Structure](#-project-structure)
+- [Documentation](#-documentation)
+- [Contributing](#-contributing)
+- [Roadmap](#-roadmap)
+- [License](#-license)
+
+---
+
+## Memory OS v2.0
+
+The system has been upgraded to a **disciplined Memory OS**. Key changes:
 
 | v1.x | v2.0 |
 |------|------|
-| 直接创建 memory | `suggest` → 创建 **candidate** → `review` → **promote** → memory |
-| Memory 无限增长 | **三层架构** + **审核机制** + **TTL控制** |
-| 所有内容都是 memory | Memory 只存 **稳定认知**（偏好/决策/原则/事实） |
-| 无焦点管理 | **Active Context** 动态选择记忆 |
+| Direct memory creation | `suggest` → create **candidate** → `review` → **promote** → memory |
+| Unlimited memory growth | **Three-tier architecture** + **review mechanism** + **TTL control** |
+| Everything is memory | Memory only stores **stable knowledge** (preferences/decisions/principles/facts) |
+| No focus management | **Active Context** dynamically selects memories |
 
-**v2.0 核心原则**：AI 不能直接写入 memory，必须经过审核。
+**v2.0 Core Principle**: AI cannot directly write to memory; it must go through review.
 
-## ✨ 核心特性
+## Core Features
 
-- **🔄 跨设备同步** - 多台机器无缝共享Context，工作流永不中断
-- **🤖 跨模型兼容** - Claude/GPT/Gemini都能解析相同格式
-- **👥 跨Agent共享** - 不同AI助手间传递上下文，接力完成任务
-- **☁️ GitHub存储** - 版本控制 + 免费托管 + 全球访问
-- **📝 Markdown优先** - 人类可读，LLM友好，永久保存
-- **🛡️ 有纪律的Memory** - v2.0: 三层架构 + 审核机制，防止记忆污染
-- **🎯 Active Context** - v2.0: 动态选择记忆，Token预算管理
-- **🔧 Memory控制** - v2.0: 去重、TTL、压缩、大小限制
+- **Cross-Device Sync** - Seamlessly share context across multiple machines
+- **Cross-Model Compatible** - Claude/GPT/Gemini can all parse the same format
+- **Cross-Agent Sharing** - Pass context between different AI assistants
+- **GitHub Storage** - Version control + free hosting + global access
+- **Markdown First** - Human-readable, LLM-friendly, preserved forever
+- **Disciplined Memory** - v2.0: Three-tier architecture + review mechanism
+- **Active Context** - v2.0: Dynamic memory selection with token budget management
+- **Memory Control** - v2.0: Deduplication, TTL, compression, size limits
 
-## 📋 系统要求
+## Requirements
 
 - Python 3.8+
 - Git
-- GitHub 账号
-- (可选) GitHub CLI (`gh`)
+- GitHub account
+- (Optional) GitHub CLI (`gh`)
 
-## 🚀 快速开始
+## Quick Start
 
-### 方式一：使用 GitHub CLI（推荐）
+### Method 1: Using GitHub CLI (Recommended)
 
 ```bash
-# 1. 克隆仓库
+# 1. Clone the repository
 git clone https://github.com/YOUR_USERNAME/context-sync.git
 cd context-sync
 
-# 2. 安装依赖
+# 2. Install dependencies
 pip install click pyyaml gitpython
 
-# 3. 创建数据仓库
+# 3. Create data repository
 gh repo create my-context-data --private --clone
 
-# 4. 配置环境变量
+# 4. Configure environment variables
+# Windows
 setx CONTEXT_SYNC_REPO "C:\path\to\my-context-data"
 setx CONTEXT_SYNC_SCRIPT "C:\path\to\context-sync\auto-sync.py"
+
+# macOS/Linux
+export CONTEXT_SYNC_REPO="~/context-sync-data"
+export CONTEXT_SYNC_SCRIPT="~/context-sync/auto-sync.py"
 ```
 
-### 方式二：手动设置
+### Method 2: Manual Setup
 
 ```bash
-# 1. 克隆主仓库
+# 1. Clone the main repository
 git clone https://github.com/YOUR_USERNAME/context-sync.git
 
-# 2. 在GitHub创建数据仓库（私有）
-# 访问 https://github.com/new 创建
+# 2. Create data repository on GitHub (private)
+# Visit https://github.com/new to create
 
-# 3. 克隆数据仓库
+# 3. Clone data repository
 mkdir -p ~/context-sync-data
 cd ~/context-sync-data
 git init
 git remote add origin https://github.com/YOUR_USERNAME/my-context-data.git
 
-# 4. 创建目录结构
+# 4. Create directory structure
 mkdir -p .context sessions memory projects tasks shared
 ```
 
-## 📦 安装
+## Installation
 
-### 依赖安装
+### Install Dependencies
 
 ```bash
-# 必需依赖
+# Required dependencies
 pip install click pyyaml gitpython
 
-# 可选依赖（用于高级功能）
+# Optional dependencies (for advanced features)
 pip install requests rich
 ```
 
-### 添加到 PATH（推荐）
+### Add to PATH (Recommended)
 
 **Windows:**
 ```powershell
-# 使用 PowerShell
+# Using PowerShell
 [Environment]::SetEnvironmentVariable("Path", $env:Path + ";D:\Coding\context-sync-system", "User")
 ```
 
 **macOS/Linux:**
 ```bash
-# 添加到 .bashrc 或 .zshrc
+# Add to .bashrc or .zshrc
 export PATH="$PATH:/path/to/context-sync-system"
 ```
 
-## ⚙️ 配置
+## Configuration
 
-创建配置文件 `~/.context-sync/config.yml`:
+Create configuration file `~/.context-sync/config.yml`:
 
 ```yaml
 version: "1.0.0"
 user:
   id: "your-github-username"
   email: "your@email.com"
-  
+
 sync:
   mode: "hybrid"      # hybrid | auto | manual
   auto_push: true
   auto_pull: true
-  
+
 paths:
   repo: "~/context-sync-data"
-  
+
 features:
   milestone_detection: true
   session_summary: true
   smart_suggest: true
 ```
 
-## 🎯 使用示例
+## Usage Examples
 
-### v2.0 Memory OS 命令
+### v2.0 Memory OS Commands
 
 ```bash
-# ===== 核心工作流（重要）=====
+# ===== Core Workflow (Important) =====
 
-# 1. 完成工作后，创建候选记忆
-#    （不是直接写 memory，而是创建待审核的 candidate）
-python auto-sync.py suggest "完成了登录功能，决定使用JWT认证"
-# 输出: ✅ 已创建候选记忆 (类型: decision, 重要性: 9/10)
-#       💡 运行 'auto-sync.py review' 进行审核
+# 1. After completing work, create a memory candidate
+#    (Don't write directly to memory; create a candidate for review)
+python auto-sync.py suggest "Completed login feature, decided to use JWT authentication"
+# Output: Created candidate memory (type: decision, importance: 9/10)
+#         Run 'auto-sync.py review' to review
 
-# 2. 审核候选记忆
-python auto-sync.py review              # 交互式审核（推荐）
-# 或
-python auto-sync.py review --auto       # 自动通过高置信度候选
+# 2. Review candidate memories
+python auto-sync.py review              # Interactive review (recommended)
+# Or
+python auto-sync.py review --auto       # Auto-approve high-confidence candidates
 
-# 3. 审核通过后会自动：
-#    - 创建 memory/core/decisions/decision-xxx.md
-#    - 归档 candidate 到 candidate/approved/
-#    - 推送到 GitHub
+# 3. After approval, automatically:
+#    - Creates memory/core/decisions/decision-xxx.md
+#    - Archives candidate to candidate/approved/
+#    - Pushes to GitHub
 
 # ===== Active Context =====
 
-# 设置当前焦点
-python auto-sync.py focus set --project my-project --goal "实现用户认证"
+# Set current focus
+python auto-sync.py focus set --project my-project --goal "Implement user authentication"
 
-# 查看当前焦点
+# Get current focus
 python auto-sync.py focus get
 
-# 构建上下文（根据焦点动态选择记忆）
+# Build context (dynamically select memories based on focus)
 python auto-sync.py context
 
-# ===== Memory 查询 =====
+# ===== Memory Query =====
 
-# 列出所有语义记忆
+# List all semantic memories
 python auto-sync.py memory list
 
-# 显示统计信息
+# Show statistics
 python auto-sync.py memory stats
 
-# ===== 维护 =====
+# ===== Maintenance =====
 
-# 运行维护（去重、检查TTL、强制执行大小限制）
-python auto-sync.py maintenance --dry-run   # 试运行
-python auto-sync.py maintenance             # 执行维护
+# Run maintenance (deduplication, TTL check, enforce size limits)
+python auto-sync.py maintenance --dry-run   # Dry run
+python auto-sync.py maintenance             # Execute maintenance
 
-# ===== 基础命令 =====
+# ===== Basic Commands =====
 
-# 推送/拉取
+# Push/Pull
 python auto-sync.py push
 python auto-sync.py pull
 
-# 生成会话总结
+# Generate session summary
 python auto-sync.py summary
 ```
 
-### v1.x 兼容命令
+### v1.x Compatible Commands
 
 ```bash
-# 创建Context记录
-python auto-sync.py create "完成了用户登录功能" --type session --tags auth,feature
+# Create context record
+python auto-sync.py create "Completed user login feature" --type session --tags auth,feature
 
-# 搜索历史Context
+# Search historical context
 python auto-sync.py search "login"
 
-# 同步到GitHub
+# Sync to GitHub
 python auto-sync.py push
 
-# 拉取最新Context
+# Pull latest context
 python auto-sync.py pull
 ```
 
-### 混合模式工作流（推荐）
+### Hybrid Mode Workflow (Recommended)
 
 ```bash
-# 1. 开始工作时
+# 1. Start working
 python auto-sync.py start
 
-# 2. 完成重要工作时，获取智能建议
-python auto-sync.py suggest "刚刚完成了数据库迁移"
+# 2. After completing important work, get smart suggestions
+python auto-sync.py suggest "Just completed database migration"
 
-# 3. 根据建议创建Context
-python auto-sync.py create "完成了数据库迁移" --type memory --tags migration
+# 3. Create context based on suggestions
+python auto-sync.py create "Completed database migration" --type memory --tags migration
 
-# 4. 会话结束，自动生成总结
+# 4. End of session, auto-generate summary
 python auto-sync.py summary
 ```
 
-## 📝 Context格式
+## Context Format
 
 ```markdown
 ---
@@ -253,28 +278,28 @@ relations:
     context_id: "related-uuid"
 ---
 
-# 会话内容
+# Session Content
 
-支持完整Markdown语法，包括：
-- 代码块
-- 列表
-- 表格
-- 链接
+Supports full Markdown syntax, including:
+- Code blocks
+- Lists
+- Tables
+- Links
 
-## 关键决策
+## Key Decisions
 
-- 使用JWT进行认证
-- 数据库选择PostgreSQL
+- Use JWT for authentication
+- Choose PostgreSQL as database
 ```
 
-## 🔗 集成指南
+## Integration Guide
 
-### Claude Code 集成
+### Claude Code Integration
 
-在 `CLAUDE.md` 中添加:
+Add to `CLAUDE.md`:
 
 ```markdown
-## Context Sync 集成
+## Context Sync Integration
 
 After completing SIGNIFICANT work:
 - Run: python "D:\Coding\context-sync-system\auto-sync.py" suggest "{{summary}}"
@@ -289,89 +314,89 @@ Before starting work:
 - Read relevant context from memory/
 ```
 
-### 其他 Agent 集成
+### Other Agent Integration
 
-任何支持以下能力的Agent都可以使用：
-- **读取**: Markdown + YAML frontmatter
-- **写入**: 同样格式
-- **同步**: git push/pull
+Any agent supporting these capabilities can use it:
+- **Read**: Markdown + YAML frontmatter
+- **Write**: Same format
+- **Sync**: git push/pull
 
-## 📁 项目结构
+## Project Structure
 
 ```
 context-sync-system/
-├── auto-sync.py          # 主程序：自动化同步+智能检测
-├── context-sync.py       # 核心CLI工具
+├── auto-sync.py          # Main program: automated sync + smart detection
+├── context-sync.py       # Core CLI tool
 ├── scripts/
-│   └── context-sync.py   # 兼容版本
-├── README.md             # 本文件
-├── LICENSE               # MIT许可证
-├── SCHEMA.md            # Context Schema定义
-├── IMPLEMENTATION.md    # 详细实现文档
-├── HYBRID_GUIDE.md      # 混合模式指南
-├── MILESTONE_GUIDE.md   # 里程碑检测指南
-└── .gitignore           # Git忽略规则
+│   └── context-sync.py   # Compatible version
+├── README.md             # This file
+├── LICENSE               # MIT License
+├── SCHEMA.md            # Context Schema definition
+├── IMPLEMENTATION.md    # Detailed implementation docs
+├── HYBRID_GUIDE.md      # Hybrid mode guide
+├── MILESTONE_GUIDE.md   # Milestone detection guide
+└── .gitignore           # Git ignore rules
 ```
 
-## 📚 文档导航
+## Documentation
 
-### v2.0 Memory OS 文档
+### v2.0 Memory OS Documentation
 
-| 文档 | 内容 |
-|------|------|
-| [MEMORY_OS_DESIGN.md](./MEMORY_OS_DESIGN.md) | **核心设计文档** - 架构原则、流程设计、约束条件 |
-| [MEMORY_OS_ARCHITECTURE.md](./MEMORY_OS_ARCHITECTURE.md) | **架构图** - 数据流、控制流、状态机可视化 |
-| [MEMORY_OS_ROADMAP.md](./MEMORY_OS_ROADMAP.md) | **实现计划** - Phase 1-5 详细任务 |
-| [SCHEMA_v2.md](./SCHEMA_v2.md) | **Schema v2.0** - 三层数据结构规范 |
-| [QUICKSTART_v2.md](./QUICKSTART_v2.md) | **快速上手指南** - v2.0 工作流教程 |
+| Document | Content |
+|----------|---------|
+| [MEMORY_OS_DESIGN.md](./MEMORY_OS_DESIGN.md) | **Core Design Document** - Architecture principles, flow design, constraints |
+| [MEMORY_OS_ARCHITECTURE.md](./MEMORY_OS_ARCHITECTURE.md) | **Architecture Diagram** - Data flow, control flow, state machine visualization |
+| [MEMORY_OS_ROADMAP.md](./MEMORY_OS_ROADMAP.md) | **Implementation Plan** - Phase 1-5 detailed tasks |
+| [SCHEMA_v2.md](./SCHEMA_v2.md) | **Schema v2.0** - Three-tier data structure specification |
+| [QUICKSTART_v2.md](./QUICKSTART_v2.md) | **Quick Start Guide** - v2.0 workflow tutorial |
 
-### 通用文档
+### General Documentation
 
-| 文档 | 内容 |
-|------|------|
-| [SCHEMA.md](./SCHEMA.md) | Context数据格式规范 (v1.0) |
-| [OBSIDIAN_SYNC_GUIDE.md](./OBSIDIAN_SYNC_GUIDE.md) | Obsidian Vault 同步指南 |
+| Document | Content |
+|----------|---------|
+| [SCHEMA.md](./SCHEMA.md) | Context data format specification (v1.0) |
+| [OBSIDIAN_SYNC_GUIDE.md](./OBSIDIAN_SYNC_GUIDE.md) | Obsidian Vault sync guide |
 
-## 🤝 贡献指南
+## Contributing
 
-欢迎贡献！请遵循以下步骤：
+Contributions are welcome! Please follow these steps:
 
-1. **Fork** 本仓库
-2. 创建你的 **Feature Branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit** 你的改动 (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** 到分支 (`git push origin feature/AmazingFeature`)
-5. 发起 **Pull Request**
+1. **Fork** this repository
+2. Create your **Feature Branch** (`git checkout -b feature/AmazingFeature`)
+3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** to the branch (`git push origin feature/AmazingFeature`)
+5. Open a **Pull Request**
 
-### 贡献领域
+### Contribution Areas
 
-- 🐛 Bug修复
-- ✨ 新功能
-- 📖 文档改进
-- 🌍 多语言支持
-- 🧪 测试用例
+- Bug fixes
+- New features
+- Documentation improvements
+- Multi-language support
+- Test cases
 
-## 🗺️ 路线图
+## Roadmap
 
-- [ ] Web界面管理Context
-- [ ] VS Code插件
-- [ ] 自动冲突解决
-- [ ] Context压缩和归档
-- [ ] 团队协作功能
-- [ ] AI驱动的Context摘要
+- [ ] Web interface for managing context
+- [ ] VS Code extension
+- [ ] Automatic conflict resolution
+- [ ] Context compression and archiving
+- [ ] Team collaboration features
+- [ ] AI-driven context summarization
 
-## 📄 许可证
+## License
 
-本项目基于 [MIT](LICENSE) 许可证开源。
+This project is open-sourced under the [MIT](LICENSE) license.
 
-## 💬 支持
+## Support
 
-- 📧 提交 [Issue](https://github.com/YOUR_USERNAME/context-sync/issues)
-- 💡 查看 [Discussions](https://github.com/YOUR_USERNAME/context-sync/discussions)
+- Submit an [Issue](https://github.com/YOUR_USERNAME/context-sync/issues)
+- View [Discussions](https://github.com/YOUR_USERNAME/context-sync/discussions)
 
-## 🙏 致谢
+## Acknowledgments
 
-感谢所有为跨Agent协作做出贡献的开发者！
+Thanks to all developers contributing to cross-agent collaboration!
 
 ---
 
-**让AI助手拥有持久记忆，让工作流跨越设备边界。**
+**Give AI assistants persistent memory, let workflows transcend device boundaries.**
