@@ -1,46 +1,98 @@
 # Context Sync System
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![GitHub](https://img.shields.io/badge/storage-GitHub-black.svg)](https://github.com)
+
 跨设备、跨模型、跨Agent的Context同步系统。
 
-## 核心特性
+> 在多台设备、多种AI模型、多个Agent之间无缝同步上下文记忆
 
-- **跨设备同步** - 多台机器无缝共享Context
-- **跨模型兼容** - Claude/GPT/Gemini都能解析
-- **跨Agent共享** - 不同AI助手间传递上下文
-- **GitHub存储** - 版本控制 + 免费托管
-- **Markdown优先** - 人类可读，LLM友好
+## ✨ 核心特性
 
-## 快速开始
+- **🔄 跨设备同步** - 多台机器无缝共享Context，工作流永不中断
+- **🤖 跨模型兼容** - Claude/GPT/Gemini都能解析相同格式
+- **👥 跨Agent共享** - 不同AI助手间传递上下文，接力完成任务
+- **☁️ GitHub存储** - 版本控制 + 免费托管 + 全球访问
+- **📝 Markdown优先** - 人类可读，LLM友好，永久保存
+- **🎯 智能里程碑** - 自动识别重要工作节点，减少噪音
+- **⚡ 混合模式** - 智能建议 + 手动确认，灵活可控
 
-### 1. 创建GitHub仓库
+## 📋 系统要求
 
-```bash
-# 创建私有仓库
-curl -X POST -H "Authorization: token YOUR_GITHUB_TOKEN" \
-  -d '{"name":"my-context-sync","private":true}' \
-  https://api.github.com/user/repos
+- Python 3.8+
+- Git
+- GitHub 账号
+- (可选) GitHub CLI (`gh`)
 
-# 克隆到本地
-git clone https://github.com/YOUR_USERNAME/my-context-sync.git ~/context-sync
-cd ~/context-sync
+## 🚀 快速开始
 
-# 创建目录结构
-mkdir -p .context sessions memory projects tasks/shared
-```
-
-### 2. 安装CLI工具
+### 方式一：使用 GitHub CLI（推荐）
 
 ```bash
+# 1. 克隆仓库
+git clone https://github.com/YOUR_USERNAME/context-sync.git
+cd context-sync
+
+# 2. 安装依赖
 pip install click pyyaml gitpython
 
-# 复制CLI工具到PATH
-cp scripts/context-sync.py /usr/local/bin/context-sync
-chmod +x /usr/local/bin/context-sync
+# 3. 创建数据仓库
+gh repo create my-context-data --private --clone
+
+# 4. 配置环境变量
+setx CONTEXT_SYNC_REPO "C:\path\to\my-context-data"
+setx CONTEXT_SYNC_SCRIPT "C:\path\to\context-sync\auto-sync.py"
 ```
 
-### 3. 配置
+### 方式二：手动设置
 
-创建 `~/context-sync/.context/config.yml`:
+```bash
+# 1. 克隆主仓库
+git clone https://github.com/YOUR_USERNAME/context-sync.git
+
+# 2. 在GitHub创建数据仓库（私有）
+# 访问 https://github.com/new 创建
+
+# 3. 克隆数据仓库
+mkdir -p ~/context-sync-data
+cd ~/context-sync-data
+git init
+git remote add origin https://github.com/YOUR_USERNAME/my-context-data.git
+
+# 4. 创建目录结构
+mkdir -p .context sessions memory projects tasks shared
+```
+
+## 📦 安装
+
+### 依赖安装
+
+```bash
+# 必需依赖
+pip install click pyyaml gitpython
+
+# 可选依赖（用于高级功能）
+pip install requests rich
+```
+
+### 添加到 PATH（推荐）
+
+**Windows:**
+```powershell
+# 使用 PowerShell
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";D:\Coding\context-sync-system", "User")
+```
+
+**macOS/Linux:**
+```bash
+# 添加到 .bashrc 或 .zshrc
+export PATH="$PATH:/path/to/context-sync-system"
+```
+
+## ⚙️ 配置
+
+创建配置文件 `~/.context-sync/config.yml`:
 
 ```yaml
 version: "1.0.0"
@@ -49,29 +101,58 @@ user:
   email: "your@email.com"
   
 sync:
-  mode: "hybrid"
+  mode: "hybrid"      # hybrid | auto | manual
   auto_push: true
   auto_pull: true
+  
+paths:
+  repo: "~/context-sync-data"
+  
+features:
+  milestone_detection: true
+  session_summary: true
+  smart_suggest: true
 ```
 
-### 4. 使用
+## 🎯 使用示例
+
+### 基础命令
 
 ```bash
-# 创建Context
-context-sync create "完成了用户登录功能实现" --type session --tags auth
+# 创建Context记录
+python auto-sync.py create "完成了用户登录功能" --type session --tags auth,feature
 
-# 搜索Context
-context-sync search "login"
+# 搜索历史Context
+python auto-sync.py search "login"
 
 # 同步到GitHub
-context-sync sync
+python auto-sync.py push
+
+# 拉取最新Context
+python auto-sync.py pull
 ```
 
-## Context格式
+### 混合模式工作流（推荐）
+
+```bash
+# 1. 开始工作时
+python auto-sync.py start
+
+# 2. 完成重要工作时，获取智能建议
+python auto-sync.py suggest "刚刚完成了数据库迁移"
+
+# 3. 根据建议创建Context
+python auto-sync.py create "完成了数据库迁移" --type memory --tags migration
+
+# 4. 会话结束，自动生成总结
+python auto-sync.py summary
+```
+
+## 📝 Context格式
 
 ```markdown
 ---
-context_id: "uuid-v4"
+context_id: "550e8400-e29b-41d4-a716-446655440000"
 context_type: "session"
 version: "1.0.0"
 created_at: "2026-04-07T10:30:00Z"
@@ -81,59 +162,123 @@ source:
   user_id: "username"
   agent_type: "claude-code"
   model: "claude-opus-4-6"
-tags: ["project-x", "feature-y"]
+tags: ["project-x", "feature-y", "auth"]
 relations:
   - type: "parent"
     context_id: "parent-uuid"
+  - type: "related"
+    context_id: "related-uuid"
 ---
 
-# Context内容
+# 会话内容
 
-支持完整Markdown语法。
+支持完整Markdown语法，包括：
+- 代码块
+- 列表
+- 表格
+- 链接
+
+## 关键决策
+
+- 使用JWT进行认证
+- 数据库选择PostgreSQL
 ```
 
-## 项目结构
+## 🔗 集成指南
 
-```
-context-sync-system/
-├── task_plan.md          # 任务计划
-├── findings.md           # 研究发现
-├── SCHEMA.md            # Context Schema定义
-├── IMPLEMENTATION.md    # 详细实现指南
-└── scripts/
-    └── context-sync.py  # CLI工具
-```
-
-## 下一步
-
-1. 阅读 [SCHEMA.md](./SCHEMA.md) 了解Context格式
-2. 阅读 [IMPLEMENTATION.md](./IMPLEMENTATION.md) 获取完整实现代码
-3. 按照指南设置你的GitHub仓库
-4. 开始同步Context！
-
-## 集成示例
-
-### Claude Code Hook
+### Claude Code 集成
 
 在 `CLAUDE.md` 中添加:
 
 ```markdown
-After completing a task:
-- Run: context-sync create "Summary: ${summary}" --type session
-- Run: context-sync sync
+## Context Sync 集成
+
+After completing SIGNIFICANT work:
+- Run: python "D:\Coding\context-sync-system\auto-sync.py" suggest "{{summary}}"
+- If suggested, run: python "D:\Coding\context-sync-system\auto-sync.py" create "{{description}}" --type memory
+
+Before ending session:
+- Run: python "D:\Coding\context-sync-system\auto-sync.py" summary
+- Run: python "D:\Coding\context-sync-system\auto-sync.py" push
 
 Before starting work:
-- Run: context-sync sync --direction pull
-- Read relevant context from ~/context-sync/memory/
+- Run: python "D:\Coding\context-sync-system\auto-sync.py" pull
+- Read relevant context from memory/
 ```
 
-### 其他Agent
+### 其他 Agent 集成
 
-任何支持以下格式的Agent都能使用:
-- 读取: Markdown + YAML frontmatter
-- 写入: 同样的格式
-- 同步: git push/pull
+任何支持以下能力的Agent都可以使用：
+- **读取**: Markdown + YAML frontmatter
+- **写入**: 同样格式
+- **同步**: git push/pull
 
-## License
+## 📁 项目结构
 
-MIT
+```
+context-sync-system/
+├── auto-sync.py          # 主程序：自动化同步+智能检测
+├── context-sync.py       # 核心CLI工具
+├── scripts/
+│   └── context-sync.py   # 兼容版本
+├── README.md             # 本文件
+├── LICENSE               # MIT许可证
+├── SCHEMA.md            # Context Schema定义
+├── IMPLEMENTATION.md    # 详细实现文档
+├── HYBRID_GUIDE.md      # 混合模式指南
+├── MILESTONE_GUIDE.md   # 里程碑检测指南
+└── .gitignore           # Git忽略规则
+```
+
+## 📚 文档导航
+
+| 文档 | 内容 |
+|------|------|
+| [SCHEMA.md](./SCHEMA.md) | Context数据格式规范 |
+| [IMPLEMENTATION.md](./IMPLEMENTATION.md) | 完整实现代码和架构 |
+| [HYBRID_GUIDE.md](./HYBRID_GUIDE.md) | 混合模式工作流详解 |
+| [MILESTONE_GUIDE.md](./MILESTONE_GUIDE.md) | 智能里程碑检测说明 |
+
+## 🤝 贡献指南
+
+欢迎贡献！请遵循以下步骤：
+
+1. **Fork** 本仓库
+2. 创建你的 **Feature Branch** (`git checkout -b feature/AmazingFeature`)
+3. **Commit** 你的改动 (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** 到分支 (`git push origin feature/AmazingFeature`)
+5. 发起 **Pull Request**
+
+### 贡献领域
+
+- 🐛 Bug修复
+- ✨ 新功能
+- 📖 文档改进
+- 🌍 多语言支持
+- 🧪 测试用例
+
+## 🗺️ 路线图
+
+- [ ] Web界面管理Context
+- [ ] VS Code插件
+- [ ] 自动冲突解决
+- [ ] Context压缩和归档
+- [ ] 团队协作功能
+- [ ] AI驱动的Context摘要
+
+## 📄 许可证
+
+本项目基于 [MIT](LICENSE) 许可证开源。
+
+## 💬 支持
+
+- 📧 提交 [Issue](https://github.com/YOUR_USERNAME/context-sync/issues)
+- 💡 查看 [Discussions](https://github.com/YOUR_USERNAME/context-sync/discussions)
+
+## 🙏 致谢
+
+感谢所有为跨Agent协作做出贡献的开发者！
+
+---
+
+**让AI助手拥有持久记忆，让工作流跨越设备边界。**
