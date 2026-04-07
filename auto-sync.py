@@ -411,6 +411,10 @@ def main():
         print("  review [--auto]                                               Review candidate memories")
         print("  memory list                                                   List all memories")
         print("  memory stats                                                  Show memory statistics")
+        print("  focus set [--project X] [--goal Y]                            Set current focus")
+        print("  focus get                                                     Show current focus")
+        print("  focus clear                                                   Clear focus")
+        print("  context                                                       Build active context")
         print("  summary                                                       Generate session summary")
         print("  start                                                         Mark session start")
         print("")
@@ -477,6 +481,33 @@ def main():
         else:
             print(f"Unknown memory subcommand: {subcommand}")
             print("Use: memory list | memory stats")
+
+    elif command == "focus":
+        subcommand = sys.argv[2] if len(sys.argv) > 2 else "get"
+        if subcommand == "set":
+            # 解析参数
+            focus_type = "maintenance"
+            project_id = None
+            goal = None
+            for i, arg in enumerate(sys.argv):
+                if arg == "--project" and i + 1 < len(sys.argv):
+                    project_id = sys.argv[i + 1]
+                    focus_type = "project"
+                elif arg == "--task" and i + 1 < len(sys.argv):
+                    focus_type = "task"
+                elif arg == "--goal" and i + 1 < len(sys.argv):
+                    goal = sys.argv[i + 1]
+            set_focus(focus_type, project_id, None, goal)
+        elif subcommand == "get":
+            get_focus()
+        elif subcommand == "clear":
+            clear_focus()
+        else:
+            print(f"Unknown focus subcommand: {subcommand}")
+            print("Use: focus set --project X | focus get | focus clear")
+
+    elif command == "context":
+        build_active_context()
 
     elif command == "summary":
         session_summary()
@@ -669,6 +700,65 @@ def show_memory_stats():
         print("\n  运行 'auto-sync.py review' 进行审核")
 
     print("="*60 + "\n")
+
+
+def set_focus(focus_type, project_id, task_id, goal):
+    """设置焦点"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        from active_context import focus_set as ac_focus_set
+    except ImportError as e:
+        print(f"[Error] 无法加载 active_context 模块: {e}")
+        return
+    ac_focus_set(focus_type, project_id, task_id, goal)
+
+
+def get_focus():
+    """获取焦点"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        from active_context import focus_get as ac_focus_get
+    except ImportError as e:
+        print(f"[Error] 无法加载 active_context 模块: {e}")
+        return
+    ac_focus_get()
+
+
+def clear_focus():
+    """清除焦点"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        from active_context import focus_clear as ac_focus_clear
+    except ImportError as e:
+        print(f"[Error] 无法加载 active_context 模块: {e}")
+        return
+    ac_focus_clear()
+
+
+def build_active_context():
+    """构建活跃上下文"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        from active_context import ContextBuilder
+    except ImportError as e:
+        print(f"[Error] 无法加载 active_context 模块: {e}")
+        return
+
+    print("\n" + "="*60)
+    print("🧠 Building Active Context...")
+    print("="*60)
+
+    builder = ContextBuilder()
+    context = builder.build_context()
+
+    # 保存到临时文件
+    output_path = REPO_PATH / ".context" / "state" / "built-context.md"
+    output_path.write_text(context, encoding='utf-8')
+
+    print(f"\n✅ Context built!")
+    print(f"   Length: {len(context)} characters")
+    print(f"   Saved: {output_path}")
+    print("\n" + "="*60 + "\n")
 
 
 # ============================================
