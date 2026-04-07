@@ -415,6 +415,7 @@ def main():
         print("  focus get                                                     Show current focus")
         print("  focus clear                                                   Clear focus")
         print("  context                                                       Build active context")
+        print("  maintenance [--dry-run]                                       Run memory maintenance")
         print("  summary                                                       Generate session summary")
         print("  start                                                         Mark session start")
         print("")
@@ -508,6 +509,10 @@ def main():
 
     elif command == "context":
         build_active_context()
+
+    elif command == "maintenance":
+        dry_run = "--dry-run" in sys.argv or "-n" in sys.argv
+        run_maintenance(dry_run=dry_run)
 
     elif command == "summary":
         session_summary()
@@ -759,6 +764,37 @@ def build_active_context():
     print(f"   Length: {len(context)} characters")
     print(f"   Saved: {output_path}")
     print("\n" + "="*60 + "\n")
+
+
+def run_maintenance(dry_run: bool = True):
+    """运行内存维护"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        from memory_control import MaintenanceEngine, format_report
+    except ImportError as e:
+        print(f"[Error] 无法加载 memory_control 模块: {e}")
+        return
+
+    print("\n" + "="*60)
+    print("🔧 Running Memory Maintenance...")
+    print("="*60)
+    print(f"Mode: {'DRY RUN' if dry_run else 'LIVE'}")
+    print("-"*60 + "\n")
+
+    engine = MaintenanceEngine()
+    report = engine.run_maintenance(
+        dry_run=dry_run,
+        dedup=True,
+        ttl_check=True,
+        compress=False,  # 暂时不启用压缩
+        enforce_limits=True
+    )
+
+    print(format_report(report))
+
+    if not dry_run and report.get("actions"):
+        print("📤 同步到 GitHub...")
+        sync_push()
 
 
 # ============================================
