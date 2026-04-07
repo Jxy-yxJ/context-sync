@@ -3,10 +3,24 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub](https://img.shields.io/badge/storage-GitHub-black.svg)](https://github.com)
+[![Memory OS v2](https://img.shields.io/badge/Memory%20OS-v2.0-green.svg)](./MEMORY_OS_DESIGN.md)
 
 跨设备、跨模型、跨Agent的Context同步系统。
 
 > 在多台设备、多种AI模型、多个Agent之间无缝同步上下文记忆
+
+## 🆕 Memory OS v2.0
+
+系统已升级为 **有纪律的 Memory OS**，核心变化：
+
+| v1.x | v2.0 |
+|------|------|
+| 直接创建 memory | `suggest` → 创建 **candidate** → `review` → **promote** → memory |
+| Memory 无限增长 | **三层架构** + **审核机制** + **TTL控制** |
+| 所有内容都是 memory | Memory 只存 **稳定认知**（偏好/决策/原则/事实） |
+| 无焦点管理 | **Active Context** 动态选择记忆 |
+
+**v2.0 核心原则**：AI 不能直接写入 memory，必须经过审核。
 
 ## ✨ 核心特性
 
@@ -15,8 +29,9 @@
 - **👥 跨Agent共享** - 不同AI助手间传递上下文，接力完成任务
 - **☁️ GitHub存储** - 版本控制 + 免费托管 + 全球访问
 - **📝 Markdown优先** - 人类可读，LLM友好，永久保存
-- **🎯 智能里程碑** - 自动识别重要工作节点，减少噪音
-- **⚡ 混合模式** - 智能建议 + 手动确认，灵活可控
+- **🛡️ 有纪律的Memory** - v2.0: 三层架构 + 审核机制，防止记忆污染
+- **🎯 Active Context** - v2.0: 动态选择记忆，Token预算管理
+- **🔧 Memory控制** - v2.0: 去重、TTL、压缩、大小限制
 
 ## 📋 系统要求
 
@@ -116,7 +131,63 @@ features:
 
 ## 🎯 使用示例
 
-### 基础命令
+### v2.0 Memory OS 命令
+
+```bash
+# ===== 核心工作流（重要）=====
+
+# 1. 完成工作后，创建候选记忆
+#    （不是直接写 memory，而是创建待审核的 candidate）
+python auto-sync.py suggest "完成了登录功能，决定使用JWT认证"
+# 输出: ✅ 已创建候选记忆 (类型: decision, 重要性: 9/10)
+#       💡 运行 'auto-sync.py review' 进行审核
+
+# 2. 审核候选记忆
+python auto-sync.py review              # 交互式审核（推荐）
+# 或
+python auto-sync.py review --auto       # 自动通过高置信度候选
+
+# 3. 审核通过后会自动：
+#    - 创建 memory/core/decisions/decision-xxx.md
+#    - 归档 candidate 到 candidate/approved/
+#    - 推送到 GitHub
+
+# ===== Active Context =====
+
+# 设置当前焦点
+python auto-sync.py focus set --project my-project --goal "实现用户认证"
+
+# 查看当前焦点
+python auto-sync.py focus get
+
+# 构建上下文（根据焦点动态选择记忆）
+python auto-sync.py context
+
+# ===== Memory 查询 =====
+
+# 列出所有语义记忆
+python auto-sync.py memory list
+
+# 显示统计信息
+python auto-sync.py memory stats
+
+# ===== 维护 =====
+
+# 运行维护（去重、检查TTL、强制执行大小限制）
+python auto-sync.py maintenance --dry-run   # 试运行
+python auto-sync.py maintenance             # 执行维护
+
+# ===== 基础命令 =====
+
+# 推送/拉取
+python auto-sync.py push
+python auto-sync.py pull
+
+# 生成会话总结
+python auto-sync.py summary
+```
+
+### v1.x 兼容命令
 
 ```bash
 # 创建Context记录
@@ -232,12 +303,22 @@ context-sync-system/
 
 ## 📚 文档导航
 
+### v2.0 Memory OS 文档
+
 | 文档 | 内容 |
 |------|------|
-| [SCHEMA.md](./SCHEMA.md) | Context数据格式规范 |
-| [IMPLEMENTATION.md](./IMPLEMENTATION.md) | 完整实现代码和架构 |
-| [HYBRID_GUIDE.md](./HYBRID_GUIDE.md) | 混合模式工作流详解 |
-| [MILESTONE_GUIDE.md](./MILESTONE_GUIDE.md) | 智能里程碑检测说明 |
+| [MEMORY_OS_DESIGN.md](./MEMORY_OS_DESIGN.md) | **核心设计文档** - 架构原则、流程设计、约束条件 |
+| [MEMORY_OS_ARCHITECTURE.md](./MEMORY_OS_ARCHITECTURE.md) | **架构图** - 数据流、控制流、状态机可视化 |
+| [MEMORY_OS_ROADMAP.md](./MEMORY_OS_ROADMAP.md) | **实现计划** - Phase 1-5 详细任务 |
+| [SCHEMA_v2.md](./SCHEMA_v2.md) | **Schema v2.0** - 三层数据结构规范 |
+| [QUICKSTART_v2.md](./QUICKSTART_v2.md) | **快速上手指南** - v2.0 工作流教程 |
+
+### 通用文档
+
+| 文档 | 内容 |
+|------|------|
+| [SCHEMA.md](./SCHEMA.md) | Context数据格式规范 (v1.0) |
+| [OBSIDIAN_SYNC_GUIDE.md](./OBSIDIAN_SYNC_GUIDE.md) | Obsidian Vault 同步指南 |
 
 ## 🤝 贡献指南
 
